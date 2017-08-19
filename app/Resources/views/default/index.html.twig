@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div id="wrapper">
+        <div id="container">
+
+            <h1>Input file.</h1>
+            <input type="file" id="files" name="files[]" />
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+
+</style>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <script>
+        function handleFileSelect(evt) {
+            var files = evt.target.files;
+
+            var reader = new FileReader();
+
+            reader.onload = function() {
+                processData(reader.result);
+            };
+
+            reader.readAsBinaryString(files[0]);
+        }
+
+        document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
+        function processData(allText) {
+
+            var allTextLines = allText.split(/\r\n|\n/);
+            var headers = allTextLines[0].split(',');
+
+            //allTextLines.length
+            for (var i=1; i<3; i++) {
+                var data = allTextLines[i].split(',');
+                if (data.length == headers.length) {
+
+                    var tarr = [];
+                    for (var j=0; j<headers.length; j++) {
+                        tarr.push(data[j]);
+                    }
+
+                    var data = {
+                        name: tarr[0],
+                        email: tarr[1]
+                    };
+
+                    $.ajax({
+                        url: "http://127.0.0.1:8000/email",
+                        type: "POST",
+                        contentType: "application/json",
+                        dataType:"json",
+                        data: JSON.stringify({
+                            name: tarr[0],
+                            email: tarr[1]
+                        }),
+                        success: function(data){
+                            console.log(data);
+                        }
+                    });
+                }
+            }
+        }
+    </script>
+
+
+{% endblock %}

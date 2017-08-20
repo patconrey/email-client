@@ -40,8 +40,7 @@
             var allTextLines = allText.split(/\r\n|\n/);
             var headers = allTextLines[0].split(',');
 
-            //allTextLines.length
-            for (var i=1; i<3; i++) {
+            for (var i=1; i<allTextLines.length; i++) {
                 var data = allTextLines[i].split(',');
                 if (data.length == headers.length) {
 
@@ -50,23 +49,15 @@
                         tarr.push(data[j]);
                     }
 
-                    var data = {
-                        name: tarr[0],
-                        email: tarr[1]
-                    };
-
                     $.ajax({
-                        url: "http://127.0.0.1:8000/email",
                         type: "POST",
-                        contentType: "application/json",
-                        dataType:"json",
-                        data: JSON.stringify({
-                            name: tarr[0],
-                            email: tarr[1]
-                        }),
+                        url: "http://127.0.0.1:8000/email",
+                        data: JSON.stringify({ name: tarr[0], email: tarr[1] }),
+                        contentType: "application/json; charset=utf-8",
                         success: function(data){
                             console.log(data);
-                        }
+                        },
+                        dataType: "html"
                     });
                 }
             }

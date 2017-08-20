@@ -27,41 +27,38 @@ class DefaultController extends Controller
     public function emailUser(Request $request, \Swift_Mailer $mailer)
     {
 
-        dump($request);
+        if (!$request->isMethod('POST'))
+        {
+            return new Response('<html><body>boo</body></html>');
+        }
 
-        $params = array();
         $content = $request->getContent();
-
-        dump($content);
         if (!empty($content))
         {
             $params = json_decode($content, true);
-            dump($params);
+
+            $message = (new \Swift_Message('Welcome to UK'))
+                ->setTo($params['email'])
+                ->setFrom($this->getParameter('mailer_from'))
+                ->setBody(
+                    $this->renderView(
+                        'Emails/rush-contact-email.html.twig',
+                        array('name' => $params['name'])
+                    ),
+                    'text/html'
+                )
+                ->attach(
+                    \Swift_Attachment::fromPath('/Users/patrickconrey/Documents/Symfony-Projects/fraternity_email_client/web/attachments/Informational-Packet.pdf')->setFilename('DeltaSigmaPhiInfo.pdf')
+                )
+                ->attach(
+                    \Swift_Attachment::fromPath('/Users/patrickconrey/Documents/Symfony-Projects/fraternity_email_client/web/attachments/Johnathon-Brigham-Scholarship-Application.pdf')->setFilename('DeltaSigmaPhiScholarship.pdf')
+                );
+
+            $mailer->send($message);
+
         }
 
-        $name = $request->request->get('name');
-        $email = $request->request->get('email');
-
-        $message = (new \Swift_Message('Welcome to UK'))
-            ->setTo('patrickconrey@gmail.com')
-            ->setFrom($this->getParameter('mailer_from'))
-            ->setBody(
-                $this->renderView(
-                    'Emails/rush-contact-email.html.twig',
-                    array('name' => $name)
-                ),
-                'text/html'
-            )
-            ->attach(
-                \Swift_Attachment::fromPath('/Users/patrickconrey/Documents/Symfony-Projects/fraternity_email_client/web/attachments/Informational-Packet.pdf')->setFilename('DeltaSigmaPhiInfo.pdf')
-            )
-            ->attach(
-                \Swift_Attachment::fromPath('/Users/patrickconrey/Documents/Symfony-Projects/fraternity_email_client/web/attachments/Johnathon-Brigham-Scholarship-Application.pdf')->setFilename('DeltaSigmaPhiScholarship.pdf')
-            );
-
-        $mailer->send($message);
-
-        return new Response('<html><body>hi</body></html>');
+        return new Response('<p>Sent message</p>');
     }
 
     public function getAbsolutePath1()
